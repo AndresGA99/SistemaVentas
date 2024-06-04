@@ -41,8 +41,8 @@ public class Controlador extends HttpServlet {
     VentaDAO vDAO = new VentaDAO();
     ArrayList<Venta> listaV = new ArrayList<>();
     Asignaciones a = new Asignaciones();
-    int cod,cant,item;
-    String descripcion,noSerie;
+    int cod, cant, item;
+    String descripcion, noSerie;
     double precioP, subTotal, total;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -58,13 +58,13 @@ public class Controlador extends HttpServlet {
         }
 
         if (menu.equals("Inicio")) {
-            request.setAttribute("user",user);
+            request.setAttribute("user", user);
             request.getRequestDispatcher("/Inicio.jsp").forward(request, response);
         }
 
         if (menu.equals("Empleado")) {
-            request.setAttribute("user",user);
-            
+            request.setAttribute("user", user);
+
             switch (accion) {
                 case "Listar":
                     ArrayList<Empleado> listaE = eDAO.listar();
@@ -77,7 +77,7 @@ public class Controlador extends HttpServlet {
                     String estado = request.getParameter("estado");
                     String usuario = request.getParameter("usuario");
                     String clave = asegurarClave(request.getParameter("clave"));
-                    
+
                     e.setDni(dni);
                     e.setNombre(nombre);
                     e.setTel(tel);
@@ -130,8 +130,8 @@ public class Controlador extends HttpServlet {
         }
 
         if (menu.equals("Cliente")) {
-            request.setAttribute("user",user);
-            
+            request.setAttribute("user", user);
+
             switch (accion) {
                 case "Listar":
                     ArrayList<Cliente> listaC = cDAO.listar();
@@ -189,8 +189,8 @@ public class Controlador extends HttpServlet {
         }
 
         if (menu.equals("Producto")) {
-            request.setAttribute("user",user);
-            
+            request.setAttribute("user", user);
+
             switch (accion) {
                 case "Listar":
                     ArrayList<Producto> listaP = pDAO.listar();
@@ -248,41 +248,40 @@ public class Controlador extends HttpServlet {
         }
 
         if (menu.equals("NuevaVenta")) {
-            request.setAttribute("user",user);
-            
+            request.setAttribute("user", user);
+
             switch (accion) {
                 case "Buscar Cliente":
                     String dni = request.getParameter("codigoCliente");
-
                     c.setDni(dni);
                     c = cDAO.buscar(dni);
-
-                    request.setAttribute("noSerie",noSerie);
                     request.setAttribute("c", c);
+                    request.setAttribute("noSerie",noSerie);
                     break;
+
                 case "Buscar Producto":
                     id = Integer.parseInt(request.getParameter("codigoProducto"));
-
+                    p.setId(id);
                     p = pDAO.listarId(id);
-                    
-                    request.setAttribute("noSerie",noSerie);
-                    request.setAttribute("total", total);
-                    request.setAttribute("listaV",listaV);
                     request.setAttribute("c", c);
                     request.setAttribute("p", p);
+                    request.setAttribute("listaV", listaV);
+                    request.setAttribute("total", total);
+                    request.setAttribute("noSerie",noSerie);
                     break;
+
                 case "Agregar":
                     request.setAttribute("c", c);
-                            
                     item += 1;
                     total = 0;
+                    v = new Venta();
+
                     cod = Integer.parseInt(request.getParameter("codigoProducto"));
                     descripcion = request.getParameter("nombresProducto");
                     precioP = Double.parseDouble(request.getParameter("precio"));
                     cant = Integer.parseInt(request.getParameter("cant"));
                     subTotal = precioP * cant;
 
-                    v = new Venta();
                     v.setItem(item);
                     v.setIdProducto(cod);
                     v.setDescripcionP(descripcion);
@@ -290,40 +289,30 @@ public class Controlador extends HttpServlet {
                     v.setCant(cant);
                     v.setSubTotal(subTotal);
                     listaV.add(v);
-                    for (int i = 0; i<listaV.size(); i++)
-                        total += listaV.get(i).getSubTotal();
                     
-                    request.setAttribute("noSerie",noSerie);
+                    for (int i = 0; i < listaV.size(); i++) {
+                        total += listaV.get(i).getSubTotal();
+                    }
+
                     request.setAttribute("total", total);
-                    request.setAttribute("listaV",listaV);
-                    break;
-                case "Cancelar":
-                    item = 0;
-                    total = 0;
-                    listaV.clear();
+                    request.setAttribute("listaV", listaV);
                     request.setAttribute("noSerie",noSerie);
                     break;
-                case "Limpiar":
-                    request.setAttribute("noSerie",noSerie);
-                    request.setAttribute("c", c);
-                    request.setAttribute("total", total);
-                    request.setAttribute("listaV",listaV);
-                    break;
+                
                 case "Generar Venta":
                     a.actualizarStrock(listaV);
-                    
                     v.setIdCliente(c.getId());
                     v.setIdEmpleado(user.getId());
                     v.setNumSerie(noSerie);
                     v.setFecha(fecha.toString());
                     v.setMonto(total);
                     v.setEstado("1");
-                    
+
                     vDAO.guardarVenta(v);
-                         
+
                     int idVentas = Integer.parseInt(vDAO.idVentas());
-                    
-                    for(int i=0; i<listaV.size(); i++){
+
+                    for (int i = 0; i < listaV.size(); i++) {
                         v = new Venta();
                         v.setId(idVentas);
                         v.setIdProducto(listaV.get(i).getIdProducto());
@@ -331,40 +320,89 @@ public class Controlador extends HttpServlet {
                         v.setPrecio(listaV.get(i).getPrecio());
                         vDAO.guardarDetalleVenta(v);
                     }
-                    
+
                     noSerie = a.noSerie();
-                    request.setAttribute("noSerie",noSerie);
+                    request.setAttribute("noSerie", noSerie);
                     listaV.clear();
                     total = 0;
                     item = 0;
                     break;
+                 
+                case "Limpiar":                   
+                    request.setAttribute("c", c);
+                    request.setAttribute("total", total);
+                    request.setAttribute("listaV", listaV);
+                    break;
+                
+                case "Guardar":
+                    int item = Integer.parseInt(request.getParameter("id"));
+                    total = 0;
+                    Venta temp = null;
+                    System.out.println(item);
+                    for (int i = 0; i < listaV.size();i++){
+                        if (listaV.get(i).getItem()==item){
+                            temp = listaV.get(i);
+                            break;
+                        }
+                    }
+                    if(temp==null){
+                        break;
+                    }
+                    System.out.println(temp);
+                    temp.setCant(Integer.parseInt(request.getParameter("cantidad")));
+                    temp.setSubTotal(temp.getPrecio() * temp.getCant());//Para hallar el subtotal
+                    
+                    for (int i = 0; i < listaV.size(); i++) {
+                        total += listaV.get(i).getSubTotal();
+                    }
+                    request.setAttribute("total", total);
+                    request.setAttribute("listaV", listaV);
+                    request.setAttribute("noSerie", noSerie);
+                    break;
+                                           
+                case "Eliminar":
+                    int itemDel = Integer.parseInt(request.getParameter("id"));
+                    total = 0;
+                    for (int i = 0; i < listaV.size(); i++) {
+                        if (listaV.get(i).getItem() == itemDel) {
+                            listaV.remove(listaV.get(i));
+                            break;
+                        }
+                    }
+                    for (int i = 0; i < listaV.size(); i++) {
+                        total += listaV.get(i).getSubTotal();
+                    }
+                    request.setAttribute("total", total);
+                    request.setAttribute("listaV", listaV);
+                    request.setAttribute("noSerie",noSerie);
+                    break;
+                
                 default:
                     noSerie = a.noSerie();
                     request.setAttribute("noSerie",noSerie);
-                    
+                    request.getRequestDispatcher("RegistrarVenta.jsp").forward(request, response);
                     break;
+
             }
-            
             request.getRequestDispatcher("/RegistrarVenta.jsp").forward(request, response);
         }
     }
 
-    private String asegurarClave(String clave){
+    private String asegurarClave(String clave) {
         String claveSHA = null;
-        
-        try{
+
+        try {
             MessageDigest sha256 = MessageDigest.getInstance("SHA-256"); //Instanciamos el tipo de Hash
             sha256.update(clave.getBytes()); //Pasa la clave a bytes
-            
+
             claveSHA = Base64.getEncoder().encodeToString(sha256.digest());
-        } 
-        catch(Exception e){
-            System.out.println("ERROR en el SHA256\n"+e);
+        } catch (Exception e) {
+            System.out.println("ERROR en el SHA256\n" + e);
         }
-        
+
         return claveSHA;
     }
-    
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

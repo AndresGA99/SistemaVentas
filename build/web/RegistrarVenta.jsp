@@ -121,19 +121,45 @@
                                         <td>${v.getCant()}</td>
                                         <td>${v.getSubTotal()}</td>
                                         <td class="d-flex">
-                                            <a class="btn btn-warning rounded-pill" style="margin-right:3px" href="#">Editar</a>
-                                            <a class="btn btn-danger rounded-pill" href="#">Eliminar</a>
+                                            <a href="#" onclick="editar(${v.getItem()},${v.getCant()})" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">Editar</a>
+                                            <form action="Controlador?menu=NuevaVenta" method="POST" >
+                                                <input type="number" name="id" value="${v.getItem()}" style="display: none;"></input> 
+                                                <input class="btn btn-danger" value="Eliminar" name="accion" type="submit" style="margin-left: 10px"></input>
+                                            </form>
                                         </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
-                    </div>
-
+                    </div>        
+                      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 style="color: black" class="modal-title" id="exampleModalLabel">Editar</h5>
+                                    </div>
+                                    <form action="Controlador?menu=NuevaVenta" method="POST">
+                                        <div class="modal-body" >
+                                            <input type="number" id="prodItem" name="id" value="1" style="display: none;"></input> 
+                                            <label for="basic-url" style="color: black" class="form-label">Cantidad</label>
+                                            <div class="input-group mb-3">
+                                                <input type="number" class="form-control" name="cantidad" id="n-cantidad" aria-describedby="basic-addon3">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            <input type="submit" class="btn btn-primary" name="accion" value="Guardar" id="gCambios"></input>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>                       
                     <div class="card-footer d-flex">
-                        <div class="col-sm-6">
-                            <a class="btn btn-success rounded-pill" onclick="print()" href="Controlador?menu=NuevaVenta&accion=Generar+Venta">Generar Venta</a>
-                            <a class="btn btn-danger rounded-pill" href="Controlador?menu=NuevaVenta&accion=Cancelar">Cancelar</a>
+                        <div class="col-sm-6 d-flex justify-content-start">
+                            <a class="btn btn-success rounded-pill mr-2" onclick="print()" href="Controlador?menu=NuevaVenta&accion=Generar+Venta">Generar Venta</a>
+                            <form action="Controlador?menu=NuevaVenta" method="POST">
+                                <input type="submit" name="accion" value="Cancelar" class="btn btn-danger rounded-pill">
+                            </form>
                         </div>
 
                         <div class="col-sm-4 ml-auto d-flex">
@@ -144,9 +170,22 @@
                 </div>
             </div>
         </div>
-
+         <script>
+            const inputNumber = document.getElementById("n-cantidad");
+            const productItem = document.getElementById("prodItem");
+            const guardCambios = document.getElementById("gCambios");
+            guardCambios.disabled=true;
+            const editar = (id,cant)=>{
+                if(id !== 0){                    
+                    guardCambios.disabled=false;
+                }
+                inputNumber.value=cant;
+                productItem.value=id;
+            }
+        </script>              
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
     </body>
 </html>
